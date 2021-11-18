@@ -1,0 +1,14 @@
+{
+  "scripts": {
+    "serve:dev": "ELEVENTY_ENV=development ELEVENTY_NUNJUCKS_SPEEDBOOST_OPTOUT=1 npx @11ty/eleventy --serve",
+    "build:prod": "ELEVENTY_ENV=production ELEVENTY_NUNJUCKS_SPEEDBOOST_OPTOUT=1 npx @11ty/eleventy"
+  },
+  "dependencies": {
+    "init": "^0.1.2",
+    "npm": "^8.1.3",
+    "rss-parser": "^3.12.0"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^0.12.1"
+  }
+}

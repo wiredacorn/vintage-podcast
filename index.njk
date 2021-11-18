@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="https://cdn.jsdelivr.net/npm/rss-parser@3.12.0/dist/rss-parser.min.js"></script>
+        <script src="//unpkg.com/alpinejs" defer></script>
+        <title>Teachings</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body 
+        x-data="podcast"
+    >
+    <p>RSS Feed Output</p>
+    <style>
+        #podcastList {
+            display: flex;
+            flex-wrap: wrap;
+            max-width: 100%;
+            grid-template-columns: minmax(200px, 1fr) minmax(200px, 1fr) minmax(200px, 1fr);
+            grid-template-rows: minmax(20px, 1fr) minmax(20px, 1fr) minmax(20px, 1fr);
+            gap:20px;
+            flex-direction:row;
+            flex-wrap:none;
+            width:100%;
+            overflow:hidden;
+            padding:50px;
+            margin-left:-50px;
+        }
+        #podcastList > li {
+            background-image:url('https://vintagecitychurch.com/wp-content/uploads/2021/10/VCC-logo-3000-dark-scaled.jpg');
+            background-size:contain;
+            background-repeat:no-repeat;
+            background-position:center;
+            background-color:#818181;
+            border-radius:20px;
+            /*height:200px;
+            width:400px;*/
+            cursor: pointer;
+            box-shadow:0 0 20px rgba(0,0,0,0.3);
+            
+        }
+        @media screen and (max-width:786px) {
+            #podcastList > li {
+                width:100%!important;
+                height:300px!important;
+            }
+            
+        }
+        #podcastList > li > div {
+            padding:10px;
+            border-radius:20px;
+            height:100%;
+            width:100%;
+        }
+        
+        #podcastList > li > div > div > h4 {
+            font-size:1.3rem;
+            color:white;
+            font-weight:bold;
+
+        }
+        .showHover {
+            opacity:0;
+            pointer-events: none;
+        }
+        .showHover:hover {
+            display:block;
+            opacity:1;
+            pointer-events: unset;
+        }
+    </style>
+        
+        <h1 class="mainTitle">Teachings</h1>
+        <div 
+            id="titlelist"
+            x-init=""
+        >
+        {% if feed['11tydata'].items %}
+                    <div x-data="{
+                        'feed': {{feed}}
+                    }">
+                        <textarea style="display:none">{{feed['11tydata']}}</textarea>
+                        <textarea style="display:none">{{feed['11tydata'].items}}</textarea>
+                        <p>{{feed['11tydata'].items.length}} Episodes</p>
+                        <ul 
+                            id="podcastList"
+                            style="list-style-type: none;"
+                        >
+                        {% for episode in feed['11tydata'].items %}
+                        
+                                <li
+                                    data-episodenumber="{{loop.index}}"
+                                    style="position:relative"
+                                    
+                                    {% if 'enclosure' in episode %}
+                                    @click="
+                                        audioPlaying = true;
+                                        playEpisode('{{episode.enclosure.url}}');
+                                        currentEpisode = $el.dataset.episodenumber; 
+                                        "
+                                    {% else %}
+                                        @click="alert('Could not find audio stream for ' + '{{episode.title}}')"
+                                    {% endif %}
+                                    
+                                >
+                                    <div style="position:relative;height:100%;width:100%;">
+                                        <div label="title">
+                                            <h4>{{episode.title}}</h4>
+                                        </div>
+                                        <div label="categories">
+                                            <ul style="list-style-type: none;">
+                                                {% for category in episode.categories %}
+                                                    {% if category != "Teachings" %}
+                                                        <li style="color:white">
+                                                            {{category}}
+                                                        </li>
+                                                    {% endif %}
+                                                </template>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                        <div label="description" class="showHover">
+                                            <p style="
+                                            font-size:12px;
+                                            line-height:1;
+                                            padding-bottom: 7px;
+                                            color:white;
+                                            overflow:hidden;
+                                            height:100px;
+                                            width:280px;
+                                        ">{{episode.content}}</p>
+                                        </div>
+                                        <div 
+                                            label="frame"
+                                            id="episode-control"
+                                        >
+                                            <p style="position:absolute; top:25px;right:25px;">Ep: <span>{{loop.index}}</span></p>
+                                            {% if currentEpisode %}
+                                                <svg style="position:absolute;bottom:25px;right:25px;" width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M23 12l-22 12v-24l22 12zm-21 10.315l18.912-10.315-18.912-10.315v20.63z"/></svg>
+                                            {% endif %}
+                                            {% if currentEpisode == false %}
+                                                <svg style="position:absolute;bottom:25px;right:25px;" width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M23 12l-22 12v-24l22 12zm-21 10.315l18.912-10.315-18.912-10.315v20.63z"/></svg>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                </li>
+                            {% endfor %}
+                            
+                        </ul>
+                    </div>
+                {% endif %}
+            </ul>
+            
+        </div>
+        <style>
+        .nope {
+            opacity:0;
+            pointer-events: none;
+        }
+        </style>
+        <div 
+        :class="audioPlaying == true ? 'show' : 'nope'"
+        style="
+            position:fixed;
+            right:30px;
+            top:150px;
+            width:400px;"
+        >
+            <template x-if="audioPlaying"
+                >
+                <div 
+                :class="audioPlaying = true ? 'show' : 'nope'"
+                style="
+                    box-shadow:0px 0px 10px rgba(0 0 0 / 20%);
+                    display:flex;
+                    flex-direction: column;
+                    justify-content: flex-end;
+                    border-radius: 27px;
+                    background: black;
+                    padding-bottom:20px;
+                    margin-bottom:-20px
+                    "
+                >
+                    <div style="
+                        color: white;
+                        padding:20px;
+                    ">
+                        <p style="
+                            font-size:1.3rem;
+                            line-height:1rem;
+                            text-align: left;
+                            padding-bottom:10px;
+                            display:block;
+                        "
+                        x-text="{{feed['11tydata']}}.currentEpisode.title">
+                        </p>
+                        <p style="
+                            font-size:1rem;
+                            line-height:1rem;
+                            padding-bottom: 7px;
+                        "
+                            x-text="{{feed['11tydata']}}.currentEpisode.content"
+                        >
+                        </p>
+                    </div>
+                </div>
+            </template>
+            
+            <audio 
+                :class="audioPlaying = true ? 'show' : 'nope'"
+                style="
+                    margin-bottom: -45px;
+                    width:350px;
+                    box-shadow: 0px 0px 20px rgb(0 0 0 / 30%);
+                    border-radius: 1000px;
+                    margin-bottom: 21px;
+                    box-shadow: 0px 0px 20px rgb(0 0 0 / 30%);
+                    border-radius: 1000px;
+                    margin-left: -20px;
+                " 
+                controls id="audioPlayer">
+                <source id="audioSource" src="https://vintagecitychurch.com/podcast-download/35948/be-jesus-where-you-are-at.wav" type="audio/mp3">
+                Your browser does not support the audio tag.
+            </audio>
+        </div>
+        
+        
+    </body>
+
+    <script>
+
+
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('podcast', () => ({
+                'audioPlaying': false,
+                'message': "message",
+                'currentEpisode': false,
+                'feedLoaded': false,
+                'unique_categories': ['test','test'],
+                logData() {
+                    console.log('logData() feed')
+                    console.log(this.feed);
+                },
+                logIt(it) {
+                    console.log('logData() it')
+                    console.log(it);
+                },
+                getUniqueCategories(feed) {
+                    console.log('running getUniqueCategories(feed)')
+                    this.unique_categories = [];
+                    console.log('feed in categories')
+                    console.log(feed)
+
+                    let all_categories = [];
+                    for (i=0; i < feed.items.length; i++) {
+                        all_categories.push(...feed.items[i].categories)
+                    }
+
+                    unique_categories = all_categories.filter(function(item, pos, self) {
+                        return self.indexOf(item) == pos;
+                    })
+
+                    this.unique_categories = unique_categories;
+
+                },
+                fetchFeed() {
+                    console.log('direct');
+                    var parser = new RSSParser();
+                    const CORS_PROXY = 'https://cors-anywhere.herokuapp.com/'
+                    const LIVE_NO_PROXY = ''
+                    var RSS_TEST_URL = 'https://anchor.fm/s/73d7b9a0/podcast/rss';
+                    var RSS_URL = 'https://vintagecitychurch.com/category/teachings/feed/';
+                    parser.parseURL(LIVE_NO_PROXY + RSS_URL, function(err, feed) {
+                        window.feed = feed
+                        let event = new CustomEvent("items-load", {
+                        detail: {
+                            items: feed
+                        }
+                        });
+                        window.dispatchEvent(event);
+                        return feed
+                    })
+                }
+            }))
+        });
+
+        // End Alpine Functions 
+
+
+
+        // Audio Player
+        let main_wrapper = document.getElementById('podcast-wrapper');
+        let audioPlayer = document.getElementById('audioPlayer');
+        let audioSource = document.getElementById('audioSource');
+        
+
+        function playEpisode(link) {
+            audioSource.src = link;
+            console.log(audioSource.src)
+            audioPlayer.load();
+            audioPlayer.play();
+        }
+
+        function episode_template(data) {
+            return `
+                <button type="button" onclick="playEpisode(data.enclosure.link)" data-episode-url="data.enclosure.link" style="height:200px; width:400px;background-color:rgba(61, 61, 61, .97);background-size:cover;background-image:url('https://vintagecitychurch.com/wp-content/uploads/2019/08/VCC-logo-mobile.png')">
+                    
+                </button>
+            `
+        }
+
+        // Note: some RSS feeds can't be loaded in the browser due to CORS security.
+        // To get around this, you can use a proxy.
+        
+        
+        
+    </script>
+</html>
