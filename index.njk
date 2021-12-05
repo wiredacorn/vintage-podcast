@@ -12,7 +12,7 @@
     >
     <p>RSS Feed Output</p>
     <style>
-        #podcastList {
+        disable#podcastList {
             display: flex;
             flex-wrap: wrap;
             max-width: 100%;
@@ -26,7 +26,7 @@
             padding:50px;
             margin-left:-50px;
         }
-        #podcastList > li {
+        disable#podcastList > li {
             background-image:url('https://vintagecitychurch.com/wp-content/uploads/2021/10/VCC-logo-3000-dark-scaled.jpg');
             background-size:contain;
             background-repeat:no-repeat;
@@ -40,30 +40,30 @@
             
         }
         @media screen and (max-width:786px) {
-            #podcastList > li {
+            disable#podcastList > li {
                 width:100%!important;
                 height:300px!important;
             }
             
         }
-        #podcastList > li > div {
+        disable#podcastList > li > div {
             padding:10px;
             border-radius:20px;
             height:100%;
             width:100%;
         }
         
-        #podcastList > li > div > div > h4 {
+        disable#podcastList > li > div > div > h4 {
             font-size:1.3rem;
             color:white;
             font-weight:bold;
 
         }
-        .showHover {
+        disable.showHover {
             opacity:0;
             pointer-events: none;
         }
-        .showHover:hover {
+        disable.showHover:hover {
             display:block;
             opacity:1;
             pointer-events: unset;
@@ -75,79 +75,103 @@
             id="titlelist"
             x-init=""
         >
-        {% if feed['11tydata'].items %}
+        {% if feed['11tydata'].feed.items %}
                     <div x-data="{
                         'feed': {{feed}}
                     }">
-                        <textarea style="display:none">{{feed['11tydata']}}</textarea>
-                        <textarea style="display:none">{{feed['11tydata'].items}}</textarea>
-                        <p>{{feed['11tydata'].items.length}} Episodes</p>
-                        <ul 
-                            id="podcastList"
-                            style="list-style-type: none;"
-                        >
-                        {% for episode in feed['11tydata'].items %}
-                        
-                                <li
-                                    data-episodenumber="{{loop.index}}"
-                                    style="position:relative"
-                                    
-                                    {% if 'enclosure' in episode %}
-                                    @click="
-                                        audioPlaying = true;
-                                        playEpisode('{{episode.enclosure.url}}');
-                                        currentEpisode = $el.dataset.episodenumber; 
-                                        "
-                                    {% else %}
-                                        @click="alert('Could not find audio stream for ' + '{{episode.title}}')"
-                                    {% endif %}
-                                    
-                                >
-                                    <div style="position:relative;height:100%;width:100%;">
-                                        <div label="title">
-                                            <h4>{{episode.title}}</h4>
-                                        </div>
-                                        <div label="categories">
-                                            <ul style="list-style-type: none;">
-                                                {% for category in episode.categories %}
-                                                    {% if category != "Teachings" %}
-                                                        <li style="color:white">
-                                                            {{category}}
-                                                        </li>
+                        <textarea style="display:none">{{feed['11tydata'].feed}}</textarea>
+                        <textarea style="display:none">{{feed['11tydata'].feed.items}}</textarea>
+                        <p>{{feed['11tydata'].feed.items.length}} Episodes</p>
+                            {% for series in feed['11tydata'].seriesList %}
+                                <div class="w-full">
+                                    <h3 style="font-size:5rem">{{series}}</h3>
+                                    <div class="w-full max-w-full">
+                                    <ul 
+                                        id="podcastList"
+                                        style="list-style-type: none;display:flex;flex-wrap:nowrap;overflow-x:scroll;min-height:max-content;"
+                                    >
+                                        
+                                            {% for episode in feed['11tydata'].feed.items %}
+                                                {% set match = false %}
+                                                {% for individualSeries in episode.seriesList.series %}
+
+
+                                                    {% if series in individualSeries %}
+                                                        {% set match = true %}
                                                     {% endif %}
-                                                </template>
                                                 {% endfor %}
-                                            </ul>
-                                        </div>
-                                        <div label="description" class="showHover">
-                                            <p style="
-                                            font-size:12px;
-                                            line-height:1;
-                                            padding-bottom: 7px;
-                                            color:white;
-                                            overflow:hidden;
-                                            height:100px;
-                                            width:280px;
-                                        ">{{episode.content}}</p>
-                                        </div>
-                                        <div 
-                                            label="frame"
-                                            id="episode-control"
-                                        >
-                                            <p style="position:absolute; top:25px;right:25px;">Ep: <span>{{loop.index}}</span></p>
-                                            {% if currentEpisode %}
-                                                <svg style="position:absolute;bottom:25px;right:25px;" width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M23 12l-22 12v-24l22 12zm-21 10.315l18.912-10.315-18.912-10.315v20.63z"/></svg>
-                                            {% endif %}
-                                            {% if currentEpisode == false %}
-                                                <svg style="position:absolute;bottom:25px;right:25px;" width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M23 12l-22 12v-24l22 12zm-21 10.315l18.912-10.315-18.912-10.315v20.63z"/></svg>
-                                            {% endif %}
-                                        </div>
+                                                {% if match %}
+                                                    
+                                                    <li
+                                                        data-episodenumber="{{loop.index}}"
+                                                        style="position:relative;border:2px solid black;border-radius:20px;margin:5px;width:400px;height:200px;min-height:max-content;max-height:200px;max-width:400px;min-height:200px;min-width:400px;"
+                                                        
+                                                        {% if 'enclosure' in episode %}
+                                                            @click="
+                                                                audioPlaying = true;
+                                                                playEpisode('{{episode.enclosure.url}}');
+                                                                currentEpisode = $el.dataset.episodenumber; 
+                                                                "
+                                                        {% else %}
+                                                            @click="alert('Could not find audio stream for ' + '{{episode.title}}')"
+                                                        {% endif %}
+                                                        
+                                                    >
+                                                        <div style="padding:15px;">
+                                                            <div label="title">
+                                                                <h4>{{episode.title}}</h4>
+                                                            </div>
+                                                            <div label="categories">
+                                                                <ul style="list-style-type: none;">
+                                                                    {% for series in episode.seriesList.series %}
+                                                                        {% if series != "Teachings" %}
+                                                                            <li style="">
+                                                                                {{series}}
+                                                                            </li>
+                                                                        {% endif %}
+                                                                    </template>
+                                                                    {% endfor %}
+                                                                </ul>
+                                                            </div>
+                                                            <div label="description" class="showHover">
+                                                                <p style="
+                                                                display:none;
+                                                                font-size:12px;
+                                                                line-height:1;
+                                                                padding-bottom: 7px;
+                                                                color:white;
+                                                                overflow:hidden;
+                                                                height:100px;
+                                                                width:280px;
+                                                            ">{{episode.content}}</p>
+                                                            </div>
+                                                            <div 
+                                                                label="frame"
+                                                                id="episode-control"
+                                                            >
+                                                                <p style="position:absolute; top:25px;right:25px;">Ep: <span>{{loop.index}}</span></p>
+                                                                {% if currentEpisode %}
+                                                                    <svg style="position:absolute;bottom:25px;right:25px;" width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M23 12l-22 12v-24l22 12zm-21 10.315l18.912-10.315-18.912-10.315v20.63z"/></svg>
+                                                                {% endif %}
+                                                                {% if currentEpisode == false %}
+                                                                    <svg style="position:absolute;bottom:25px;right:25px;" width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M23 12l-22 12v-24l22 12zm-21 10.315l18.912-10.315-18.912-10.315v20.63z"/></svg>
+                                                                {% endif %}
+                                                            </div>
+                                                        </div>
+                                                        
+                                                    </li>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </ul>
                                     </div>
-                                    
-                                </li>
+
+                                </div>
                             {% endfor %}
+
+
+
+                        
                             
-                        </ul>
                     </div>
                 {% endif %}
             </ul>
